@@ -1,35 +1,54 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from 'react';
+import { IoMdPaw } from 'react-icons/io';
+import FormularioCadastro from './components/FormularioCadastro';
+import ListaAnimais from './components/ListaAnimais';
 
-function App() {
-  const [count, setCount] = useState(0)
+import './App.css';
+
+const App = () => {
+  const [animais, setAnimais] = useState([]);
+
+  const handleCadastroSubmit = (novoAnimal) => {
+    novoAnimal.id = Date.now().toString();
+    setAnimais([...animais, novoAnimal]);
+  };
+
+  const handleRemover = (animal) => {
+    const novaLista = animais.filter((a) => a.id !== animal.id);
+    setAnimais(novaLista);
+  };
+
+  const handleAlterarStatus = (animal) => {
+    const novaLista = animais.map((a) =>
+      a.id === animal.id ? { ...a, status: a.status === 'procurado' ? 'encontrado' : 'procurado' } : a
+    );
+    setAnimais(novaLista);
+  };
+
+  const totalAnimais = animais.length;
+  const resgatados = animais.filter((animal) => animal.status === 'encontrado').length;
+  const naoResgatados = totalAnimais - resgatados;
+
+  const percentualResgatados = (resgatados / totalAnimais) * 100;
+  const percentualNaoResgatados = (naoResgatados / totalAnimais) * 100;
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="app-container">
+      <h1>Lista de Animais</h1>
+      <FormularioCadastro onCadastroSubmit={handleCadastroSubmit} />
+      <div className="progress-bar">
+        <div className="progress-bar-item" style={{ width: `${percentualResgatados}%` }}>
+          <IoMdPaw />
+          Resgatados: {resgatados}
+        </div>
+        <div className="progress-bar-item" style={{ width: `${percentualNaoResgatados}%` }}>
+          <IoMdPaw />
+          Não Resgatados: {naoResgatados}
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+      <ListaAnimais animais={animais} onRemover={handleRemover} onAlterarStatus={handleAlterarStatus} />
+    </div>
+  );
+};
 
-export default App
+export default App;
